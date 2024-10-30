@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    </head>
+    <body class="bg-neutral-50 min-h-screen">
+      <nav class="bg-[#696e8e] text-white shadow-lg h-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+              <a href="/" class="flex-shrink-0">
+            <img src="{{ url_for('static', filename='PolicyParityAI.png') }}" alt="Policy Analysis Tool" class="h-22 w-22 mt-6">
+          </a>
+        </div>
+        <div class="hidden md:block">
+          <div class="ml-10 flex items-baseline space-x-6 mt-6">
+            <a href="/" class="nav-link {{ 'active' if request.path == '/' else '' }}">
+              <i class="fas fa-home mr-1"></i> Home
+            </a>
+            <a href="/policy-search" class="nav-link {{ 'active' if request.path == '/policy-search' else '' }}">
+              <i class="fas fa-search mr-1"></i> Find, Upload, & Analyze Policies
+            </a>
+            <a href="/find-policies" class="nav-link {{ 'active' if request.path == '/find-policies' else '' }}">
+              <i class="fas fa-landmark mr-1"></i> State Legislatures
+            </a>
+            <a href="/contact-reps" class="nav-link {{ 'active' if request.path == '/contact-reps' else '' }}">
+              <i class="fas fa-envelope mr-1"></i> Contact Reps
+            </a>
+          </div>
+        </div>
+        <div class="md:hidden">
+          <button type="button" class="text-primary-300 hover:text-white focus:outline-none focus:text-white" id="mobile-menu-button">
+            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="md:hidden hidden" id="mobile-menu">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="/" class="mobile-nav-link {{ 'active' if request.path == '/' else '' }}">
+          <i class="fas fa-home mr-1"></i> Home
+        </a>
+        <a href="/policy-search" class="mobile-nav-link {{ 'active' if request.path == '/policy-search' else '' }}">
+          <i class="fas fa-search mr-1"></i> Find, Upload, & Analyze Policies
+        </a>
+        <a href="/find-policies" class="mobile-nav-link {{ 'active' if request.path == '/find-policies' else '' }}">
+          <i class="fas fa-landmark mr-1"></i> State Legislatures
+        </a>
+        <a href="/contact-reps" class="mobile-nav-link {{ 'active' if request.path == '/contact-reps' else '' }}">
+          <i class="fas fa-envelope mr-1"></i> Contact Reps
+        </a>
+      </div>
+    </div>
+  </nav>
+</body>
+<main class="flex-1 bg-neutral-50 p-2">
+  <div
+    id="error"
+    class="hidden font-regular relative block w-3/4 md:w-1/2 rounded-lg bg-gradient-to-tr from-red-600 to-red-400 px-4 py-4 text-base text-white"
+    role="alert"
+    data-dismissible="alert"
+  >
+    <div class="absolute top-4 left-4">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+        class="h-6 w-6"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+          clip-rule="evenodd"
+        ></path>
+      </svg>
+    </div>
+    <div class="ml-8 mr-12">
+      <p id="error-message"></p>
+    </div>
+    <div
+      class="absolute top-3 right-3 w-max rounded-lg transition-all hover:bg-white hover:bg-opacity-20"
+      data-dismissible-target="alert"
+    >
+      <div role="button" class="w-max">
+        <button
+          class="select-none rounded-lg py-2 px-4 text-center align-middle font-sans text-xs font-bold uppercase text-white transition-all hover:bg-white/10 active:bg-white/30 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+          type="button"
+          data-ripple-dark="true"
+          onclick="return this.closest('#error').remove()"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main class="flex-1 bg-neutral-50 p-2">
+    <div class="flex h-screen bg-neutral-50">
+      <!-- Redesigned Sidebar -->
+      <aside class="bg-[#9396AD] w-64 flex-shrink-0  border-r border-[#96b1be] p-4 overflow-y-auto rounded-lg shadow-xl">
+        <h2 class="text-xl font-semibold mb-4 text-white text-center">Policy Document Selection</h2>
+        
+        <!-- Option 1: Search Bills -->
+        <div class="mb-6 border-4 border-[#696e8e] p-4 rounded-md">
+          <h3 class="text-lg font-semibold mb-2 text-white text-center">Option 1: Search Bills</h3>
+          <form id="topic-state-form" class="space-y-4">
+            <div>
+              <label for="topic" class="block text-sm font-medium text-white">Topic:</label>
+              <select id="topic" name="topic" class="mt-1 block w-full rounded-md border-[#96b1be] bg-white text-black shadow-sm focus:border-[#96b1be] focus:ring focus:ring-[#eb7e18] focus:ring-opacity-50">
+                <option value="">Select a topic</option>
+                {% for topic_key in topics.keys() %}
+                  <option value="{{ topic_key }}">{{ topic_key }}</option>
+                {% endfor %}
+              </select>
+              <label for="state" class="block text-sm font-medium text-white">State:</label>
+              <select id="state" name="state" class="mt-1 block w-full rounded-md border-[#96b1be] bg-white text-black shadow-sm focus:border-[#96b1be] focus:ring focus:ring-[#eb7e18] focus:ring-opacity-50">
+                <option value="">Select a state</option>
+                {% for state in states %}
+                  <option value="{{ state }}">{{ state }}</option>
+                {% endfor %}
+              </select>
+             <button type="button" onclick="fetchBills()" class="w-full bg-[#696e8e] text-white py-2 px-4 rounded-md hover:bg-[#d67316] focus:outline-none focus:ring-2 focus:ring-[#eb7e18] focus:ring-opacity-50 transition duration-150 ease-in-out">
+                Get Bills
+              </button>
+            </div>
+          </form>
+          <div id="bills-dropdown" class="hidden mt-4">
+            <label for="bills" class="block text-sm font-medium text-white">Bill:</label>
+            <select id="bills" name="bills" class="mt-1 block w-full rounded-md border-secondary-300 shadow-sm focus:border-secondary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+              <option value="">Select a bill</option>
+            </select>
+            <button type="button" onclick="fetchBillPDF()" class="w-full mt-2 bg-[#696e8e] text-white py-2 px-4 rounded-md hover:bg-[#d67316] focus:outline-none focus:ring-2 focus:ring-[#eb7e18] focus:ring-opacity-50 transition duration-150 ease-in-out">
+              View Document
+            </button>
+          </div>
+          <div id="no-bills-message" class="hidden text-center mt-2">
+            <p id="no-bills-text" class="text-white"></p>
+          </div>
+        </div>
+    
+                                <!-- Option 2: Upload Policy Document -->
+                <div class="mb-6 border-4 border-[#696e8e] p-4 rounded-md">
+                  <h3 class="text-lg font-semibold mb-2 text-white text-center">Option 2: Upload Document</h3>
+                  <form id="policy-form" enctype="multipart/form-data" class="space-y-4">
+                    <div class="flex flex-col items-center">
+                      <label for="file-input" class="block text-sm font-medium text-white mb-2 italic">Accepted: .pdf, .doc, .docx, .txt</label>
+                      <input id="file-input" name="file" type="file" accept=".pdf,.doc,.docx,.txt" 
+                        class="block w-full text-sm text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#696e8e] file:text-white hover:file:bg-[#d67316] focus:outline-none focus:border-[#eb7e18] disabled:opacity-60 disabled:pointer-events-none border-2 border-[#96b1be] rounded-md bg-[#545872]"
+                      />
+                      <p id="uploaded-file-name" class="mt-2 text-sm text-white"></p>
+                    </div>
+                    <button id="upload-file-btn" type="button" class="w-full mt-2 bg-[#696e8e] text-white py-2 px-4 rounded-md hover:bg-[#d67316] focus:outline-none focus:ring-2 focus:ring-[#eb7e18] focus:ring-opacity-50 transition duration-150 ease-in-out">
+                      Upload File
+                    </button>
+                  </form>
+                </div>
+                
+                <!-- Analyze Policy Button -->
+                <div>
+                  <button id="analyze-policy-btn" onclick="analyzePolicy()" class="w-full bg-[#a4543e] text-white py-2 px-4 rounded-md hover:bg-[#d67316] focus:outline-none focus:ring-2 focus:ring-[#eb7e18] focus:ring-opacity-50 transition duration-150 ease-in-out">
+                    Analyze Policy
+                  </button>
+                </div>
+                </aside>
+                <div class="flex-1 p-4 overflow-y-auto">
+                  <div id="results" class="bg-white rounded-lg shadow-md p-4">
+                      <!-- Tabbed interface -->
+                      <div class="mb-4">
+                          <div class="border-b border-gray-200">
+                              <nav class="-mb-px flex bg-white rounded-xl" aria-label="Tabs">
+                                  <button id="pdf-tab" class="tab-button rounded-lg border-2 text-black bold hover:text-white hover:bg-primary hover:border-gray-300 w-1/2 py-4 px-1 text-center border-b-2 font-medium text-md" onclick="switchTab('pdf')">
+                                      Policy Document
+                                  </button>
+                                  <button id="analysis-tab" class="tab-button rounded-lg border-2 text-black bold hover:text-white hover:bg-primary hover:border-gray-300 w-1/2 py-4 px-1 text-center border-b-2 font-medium text-md" onclick="switchTab('analysis')">
+                                      Analysis Results
+                                  </button>
+                              </nav>
+                          </div>
+                      </div>
+  
+                      <!-- Tab content container -->
+                      <div id="tab-content">
+                          <!-- PDF Viewer Tab -->
+                          <div id="pdf-content" class="tab-content">
+                              <div id="pdf-viewer" class="hidden">
+                                  <iframe id="pdf-iframe" class="w-full h-[600px] border border-secondary-300 rounded"></iframe>
+                              </div>
+                          </div>
+  
+                          <!-- Analysis Results Tab -->
+                          <div id="analysis-content" class="tab-content hidden">
+                              <div id="analysis-results" class="hidden">
+                                  <h3 class="text-xl font-semibold mb-4 text-primary-700">Analysis Results</h3>
+                                  <iframe id="analysis-pdf-viewer" class="w-full h-[600px] border border-secondary-300 rounded"></iframe>
+                              </div>
+                          </div>
+                      </div>
+  
+                      <!-- Loading indicator -->
+                      <div id="loading-searched" class="hidden text-center">
+                          <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-primary-600" role="status">
+                              <span class="visually-hidden"></span>
+                          </div>
+                          <p class="mt-2 text-primary-700">Analyzing policy...</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </main>
+  
+      <script>
+      function switchTab(tabName) {
+          console.log("Switching to tab:", tabName); // Debug log
+          const tabs = ['pdf', 'analysis'];
+          tabs.forEach(tab => {
+              const content = document.getElementById(`${tab}-content`);
+              const button = document.getElementById(`${tab}-tab`);
+              if (tab === tabName) {
+                  content.classList.remove('hidden');
+                  button.classList.add('bg-primary', 'text-white');
+                  button.classList.remove('text-black');
+              } else {
+                  content.classList.add('hidden');
+                  button.classList.remove('bg-primary', 'text-white');
+                  button.classList.add('text-black');
+              }
+          });
+      }
+  
+      // Initialize with PDF tab active
+      document.addEventListener('DOMContentLoaded', function() {
+          switchTab('pdf');
+      });
+</script>
+</body>
+</html>

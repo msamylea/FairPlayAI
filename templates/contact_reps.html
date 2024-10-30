@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    </head>
+    <body class="bg-neutral-50 min-h-screen">
+      <nav class="bg-[#696e8e] text-white shadow-lg h-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+              <a href="/" class="flex-shrink-0">
+            <img src="{{ url_for('static', filename='PolicyParityAI.png') }}" alt="Policy Analysis Tool" class="h-22 w-22 mt-6">
+          </a>
+        </div>
+        <div class="hidden md:block">
+          <div class="ml-10 flex items-baseline space-x-6 mt-6">
+            <a href="/" class="nav-link {{ 'active' if request.path == '/' else '' }}">
+              <i class="fas fa-home mr-1"></i> Home
+            </a>
+            <a href="/policy-search" class="nav-link {{ 'active' if request.path == '/policy-search' else '' }}">
+              <i class="fas fa-search mr-1"></i> Find, Upload, & Analyze Policies
+            </a>
+            <a href="/find-policies" class="nav-link {{ 'active' if request.path == '/find-policies' else '' }}">
+              <i class="fas fa-landmark mr-1"></i> State Legislatures
+            </a>
+            <a href="/contact-reps" class="nav-link {{ 'active' if request.path == '/contact-reps' else '' }}">
+              <i class="fas fa-envelope mr-1"></i> Contact Reps
+            </a>
+          </div>
+        </div>
+        <div class="md:hidden">
+          <button type="button" class="text-primary-300 hover:text-white focus:outline-none focus:text-white" id="mobile-menu-button">
+            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="md:hidden hidden" id="mobile-menu">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="/" class="mobile-nav-link {{ 'active' if request.path == '/' else '' }}">
+          <i class="fas fa-home mr-1"></i> Home
+        </a>
+        <a href="/policy-search" class="mobile-nav-link {{ 'active' if request.path == '/policy-search' else '' }}">
+          <i class="fas fa-search mr-1"></i> Find, Upload, & Analyze Policies
+        </a>
+        <a href="/find-policies" class="mobile-nav-link {{ 'active' if request.path == '/find-policies' else '' }}">
+          <i class="fas fa-landmark mr-1"></i> State Legislatures
+        </a>
+        <a href="/contact-reps" class="mobile-nav-link {{ 'active' if request.path == '/contact-reps' else '' }}">
+          <i class="fas fa-envelope mr-1"></i> Contact Reps
+        </a>
+      </div>
+    </div>
+  </nav>
+</body>
+  <main class="container mx-auto mt-8 p-4">
+    <h1 class="text-3xl font-bold mb-6 text-center text-primary-800">Contact Your Representatives</h1>
+    
+    <div class="bg-700 w-full flex justify-center items-center mb-8">
+        <form id="rep-search-form" class="max-w-[480px] w-full px-4">
+            <div class="relative">
+                <input type="text" id="location" name="location" class="w-full border h-12 shadow p-4 rounded-full text-primary-800 border-secondary-300 bg-white" placeholder="Enter your location (e.g., zip code, address)">
+                <button type="submit" class="absolute top-3 right-3">
+                    <svg class="text-600 h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56.966 56.966">
+                        <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17s-17-7.626-17-17S14.61,6,23.984,6z"></path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="results" class="flex flex-wrap justify-center gap-8 mt-12"></div>
+  </main>
+
+  <script>
+    document.getElementById('rep-search-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const location = document.getElementById('location').value;
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '<p class="text-center text-white">Loading...</p>';
+
+        try {
+            const response = await axios.get(`/proxy/representatives`, {
+                params: { location }
+            });
+
+            console.log('Response data:', response.data); // Debugging line
+
+            const { officials, offices } = response.data;
+
+            const channelIcons = {
+              Facebook: 'fa-brands fa-facebook-f',
+              Twitter: 'fa-brands fa-twitter',
+            }
+
+            resultsDiv.innerHTML = offices.map(office => office.officialIndices.map(index => {
+                const rep = officials[index];
+                console.log('Representative:', rep); // Debugging line
+                return `
+                    <div class="w-64 bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div class="p-4 text-center">
+                            <div class="w-24 h-24 mx-auto mb-4 overflow-hidden rounded-full border-4 border-secondary-200">
+                                ${rep.photoUrl ? 
+                                    `<img src="${rep.photoUrl}" alt="${rep.name}" class="w-full h-full object-cover">` :
+                                    `<div class="w-full h-full flex items-center justify-center bg-neutral-300 text-white text-3xl font-bold">
+                                        ${rep.name.charAt(0)}
+                                    </div>`
+                                }
+                            </div>
+                            <h3 class="text-xs font-semibold text-primary-500 uppercase mb-1">${office.name}</h3>
+                            <h2 class="text-xl font-semibold text-primary-800 mb-2">${rep.name}</h2>
+                            <p class="text-sm text-primary mb-4">
+                                ${rep.party}
+                            </p>
+                            ${rep.phones && rep.phones.length > 0 ? `
+                            <a href="tel:${rep.phones[0]}" class="block w-full bg-[#787C99] text-white text-center py-2 rounded-md hover:bg-[#96b1be] transition duration-300 mb-2">
+                                Call
+                            </a>
+                            ` : ''}
+                            ${rep.emails && rep.emails.length > 0 ? `
+                            <a href="mailto:${rep.emails[0]}" class="block w-full bg-[#787C99] text-white text-center py-2 rounded-md hover:bg-[#96b1be] transition duration-300 mb-2">
+                                Email
+                            </a>
+                            ` : ''}
+                            ${rep.urls && rep.urls.length > 0 ? `
+                            <a href="${rep.urls[0]}" target="_blank" class="block w-full bg-[#787C99] text-white text-center py-2 rounded-md hover:bg-[#96b1be] transition duration-300">
+                                Website
+                            </a>
+                            ` : ''}
+                            ${rep.channels && rep.channels.length > 0 ? `
+                            <div class="flex justify-center mt-4">
+                                ${rep.channels.map(channel => `
+                                <a href="https://www.${channel.type}.com/${channel.id}" target="_blank" class="text-[#a4543e] hover:text-[#96b1be] transition duration-300 mx-2">
+                                    <i class="fab ${channelIcons[channel.type] || ''}"></i>
+                                </a>
+                                `).join('')}
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('')).join('');
+
+            if (officials.length === 0) {
+                resultsDiv.innerHTML = '<p class="text-center text-white">No representatives found for this location.</p>';
+            }
+        } catch (error) {
+            console.error('Error fetching representatives:', error); // Debugging line
+            resultsDiv.innerHTML = `<p class="text-center text-red-300">Error: ${error.response?.data?.error || 'An unexpected error occurred.'}</p>`;
+        }
+    });
+  </script>
+</body>
+</html>

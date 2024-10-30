@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    </head>
+    <body class="bg-neutral-50 min-h-screen">
+      <nav class="bg-[#696e8e] text-white shadow-lg h-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+              <a href="/" class="flex-shrink-0">
+            <img src="{{ url_for('static', filename='PolicyParityAI.png') }}" alt="Policy Analysis Tool" class="h-22 w-22 mt-6">
+          </a>
+        </div>
+        <div class="hidden md:block">
+          <div class="ml-10 flex items-baseline space-x-6 mt-6">
+            <a href="/" class="nav-link {{ 'active' if request.path == '/' else '' }}">
+              <i class="fas fa-home mr-1"></i> Home
+            </a>
+            <a href="/policy-search" class="nav-link {{ 'active' if request.path == '/policy-search' else '' }}">
+              <i class="fas fa-search mr-1"></i> Find, Upload, & Analyze Policies
+            </a>
+            <a href="/find-policies" class="nav-link {{ 'active' if request.path == '/find-policies' else '' }}">
+              <i class="fas fa-landmark mr-1"></i> State Legislatures
+            </a>
+            <a href="/contact-reps" class="nav-link {{ 'active' if request.path == '/contact-reps' else '' }}">
+              <i class="fas fa-envelope mr-1"></i> Contact Reps
+            </a>
+          </div>
+        </div>
+        <div class="md:hidden">
+          <button type="button" class="text-primary-300 hover:text-white focus:outline-none focus:text-white" id="mobile-menu-button">
+            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="md:hidden hidden" id="mobile-menu">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="/" class="mobile-nav-link {{ 'active' if request.path == '/' else '' }}">
+          <i class="fas fa-home mr-1"></i> Home
+        </a>
+        <a href="/policy-search" class="mobile-nav-link {{ 'active' if request.path == '/policy-search' else '' }}">
+          <i class="fas fa-search mr-1"></i> Find, Upload, & Analyze Policies
+        </a>
+        <a href="/find-policies" class="mobile-nav-link {{ 'active' if request.path == '/find-policies' else '' }}">
+          <i class="fas fa-landmark mr-1"></i> State Legislatures
+        </a>
+        <a href="/contact-reps" class="mobile-nav-link {{ 'active' if request.path == '/contact-reps' else '' }}">
+          <i class="fas fa-envelope mr-1"></i> Contact Reps
+        </a>
+      </div>
+    </div>
+  </nav>
+</body>
+    <div class="container mx-auto px-4 py-8">
+        <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">State Legislature Websites</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <a href="http://www.legislature.state.al.us/index.html" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300" target="_blank" rel="noopener noreferrer">Alabama</a>
+            <a href="https://akleg.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300" target="_blank" rel="noopener noreferrer">Alaska</a>
+            <a href="http://www.azleg.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Arizona</a>
+            <a href="http://www.arkleg.state.ar.us/assembly/2013/2014F/Pages/Home.aspx" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Arkansas</a>
+            <a href="https://leginfo.legislature.ca.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">California</a>
+            <a href="https://leg.colorado.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Colorado</a>
+            <a href="http://www.cga.ct.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Connecticut</a>
+            <a href="http://legis.delaware.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Delaware</a>
+            <a href="http://dccouncil.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">D.C.</a>
+            <a href="http://www.leg.state.fl.us/Welcome/index.cfm?CFID=156970768&CFTOKEN=65926224" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Florida</a>
+            <a href="https://www.legis.ga.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Georgia</a>
+            <a href="http://www.capitol.hawaii.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Hawaii</a>
+            <a href="https://legislature.idaho.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Idaho</a>
+            <a href="http://www.ilga.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Illinois</a>
+            <a href="http://iga.in.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Indiana</a>
+            <a href="https://www.legis.iowa.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Iowa</a>
+            <a href="http://www.kslegislature.org/li/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Kansas</a>
+            <a href="https://legislature.ky.gov/Pages/index.aspx" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Kentucky</a>
+            <a href="https://legis.la.gov/legis/home.aspx" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Louisiana</a>
+            <a href="https://legislature.maine.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Maine</a>
+            <a href="https://mgaleg.maryland.gov/mgawebsite/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Maryland</a>
+            <a href="http://www.mass.gov/legis/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Massachusetts</a>
+            <a href="http://www.legislature.mi.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Michigan</a>
+            <a href="http://www.leg.state.mn.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Minnesota</a>
+            <a href="http://billstatus.ls.state.ms.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Mississippi</a>
+            <a href="https://www.mo.gov/government/legislative-branch/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Missouri</a>
+            <a href="https://leg.mt.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Montana</a>
+            <a href="http://nebraskalegislature.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Nebraska</a>
+            <a href="http://www.leg.state.nv.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Nevada</a>
+            <a href="http://www.gencourt.state.nh.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">New Hampshire</a>
+            <a href="http://www.njleg.state.nj.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">New Jersey</a>
+            <a href="http://www.nmlegis.gov/lcs/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">New Mexico</a>
+            <a href="http://assembly.state.ny.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">New York</a>
+            <a href="http://www.ncga.state.nc.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">North Carolina</a>
+            <a href="http://www.legis.nd.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">North Dakota</a>
+            <a href="https://www.legislature.ohio.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Ohio</a>
+            <a href="https://www.okhouse.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Oklahoma</a>
+            <a href="https://www.oregonlegislature.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Oregon</a>
+            <a href="http://www.legis.state.pa.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Pennsylvania</a>
+            <a href="http://www.rilin.state.ri.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Rhode Island</a>
+            <a href="http://www.scstatehouse.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">South Carolina</a>
+            <a href="http://legis.state.sd.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">South Dakota</a>
+            <a href="https://www.capitol.tn.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Tennessee</a>
+            <a href="http://www.capitol.state.tx.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Texas</a>
+            <a href="https://le.utah.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Utah</a>
+            <a href="http://www.leg.state.vt.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Vermont</a>
+            <a href="http://virginiageneralassembly.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Virginia</a>
+            <a href="http://www.leg.wa.gov/pages/home.aspx" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Washington</a>
+            <a href="http://www.legis.state.wv.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">West Virginia</a>
+            <a href="http://legis.wisconsin.gov/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Wisconsin</a>
+            <a href="http://legisweb.state.wy.us/" class="bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded shadow transition duration-300"target="_blank" rel="noopener noreferrer">Wyoming</a>
+        </div>
+    </div>
+
+
+</body>
+</html>
